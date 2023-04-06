@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "creator"
+version = "0.1.0"
+description = "Creator为自动化测试框架的名称，支持iOS、Android、Windows、MacOS、Web五端，Creator是掌控世间万物操纵一切物体的创世神。"
+authors = ["郭文贺 <guowenhe@shinemo.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
