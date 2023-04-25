@@ -1,0 +1,13 @@
+desired_caps_baas:
+  platformName: 'Android'
+  platformVersion: '6.0.1'
+  deviceName: 'emulator-5554'
+  appPackage: 'com.shinemo.baas.shinemo'
+  appActivity: 'com.shinemo.qoffice.biz.login.LoginActivity'
+  automationName: 'UiAutomator2'
+  unicodeKeyboard: true
+  resetKeyboard: true
+  noReset: true  # 在此会话之前不要重置应用程序状态
+  autoLaunch: false # 自动初始化被测应用程序。如果是 .Appium，则 Appium 不会安装/启动被测应用程序
+  ignoreUnimportantViews: true # 加快测试速度
+  newCommandTimeout: 6000 # 在假设客户端退出并结束会话之前，Appium 将等待来自客户端的新命令多长时间（以秒为单位）

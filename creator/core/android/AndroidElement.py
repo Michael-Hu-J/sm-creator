@@ -4,5 +4,14 @@ from creator.core.BaseElement import BaseElement
 
 
 class AndroidELement(BaseElement):
-    def __int__(self):
+    def __init__(self):
+        pass
+
+    def click(self):
+        pass
+
+    def send_keys(self):
+        pass
+
+    def text(self):
         pass
