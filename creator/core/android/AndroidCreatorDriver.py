@@ -19,7 +19,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         """
         模拟Android键盘按键
         导入appium.webdriver.extensions.android.nativekey.AndroidKey
-        :param keycode: 使用类似AndroidKey.HOME
+        :param keycode: 如：AndroidKey.HOME
         :return: 无
         """
         self.driver.press_keycode(keycode)
@@ -36,9 +36,18 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         self.driver.get_screenshot_as_file(screenshot_path)
 
     def start_screenrecord(self):
+        """
+        开始屏幕录制
+        :return: 如果在之前的“start_recording_screen”之后没有调用“stop_recording_screen”，返回为空字符串
+        """
         self.driver.start_recording_screen()
 
     def stop_screenrecord(self, description=None):
+        """
+        结束屏幕录制
+        :param description: 录制文件描述
+        :return: bytes: 录制媒体的Base-64 编码内容
+        """
         record = self.driver.stop_recording_screen()
         record_path = os.path.join(android_dir, "record/{}_{}.mp4".format(description,
                                                                           time.strftime("%Y-%m-%d",
@@ -85,6 +94,10 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         return WebDriverWait(self.driver, wait_time).until(EC.visibility_of_all_elements_located((by, value)))
 
     def quit(self):
+        """
+        关闭驱动连接
+        :return:
+        """
         self.driver.quit()
 
     @property
@@ -99,7 +112,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
     def current_context(self):
         """
         获取当前context
-        :return:
+        :return: str，返回当前的context session
         """
         return self.driver.current_context
 
@@ -123,25 +136,56 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         self.driver.scroll(origin_el=origin_el, destination_el=destination_el, duration=duration)
 
     def is_app_installed(self, app_info):
-        pass
+        """
+        :param app_info: android包名，如："com.shinemo.baas.shinemo"
+        :return: 返回 True 代表改包已安装，False 则反之
+        """
+        return self.driver.is_app_installed(app_info)
 
-    def install_app(self, app_info):
-        pass
+    def install_app(self, app_info, **options):
+        """
+        :param app_info: android安装包的名字，如："app.apk"
+        :param options:
+        Keyword Args:
+            replace (bool): 是否重新安装/升级软件。默认是True
+            timeout (int): 等待安装完成时间。默认是60000ms
+            allowTestPackages (bool): 是否允许安装被标记为测试的包。默认是是False
+            useSdcard (bool): 是否使用SD卡安装。默认是False
+            grantPermissions (bool): 在android 6+安装完成后，是否自动授权应用程序权限。默认是False
+        :return:
+        """
+        package_path = os.path.join(android_dir, "android_package/app_info")
+        self.driver.install_app(package_path, **options)
 
-    def remove_app(self, app_info):
-        pass
+    def remove_app(self, app_info, **options):
+        """
+        :param app_info: android包名，如："com.shinemo.baas.shinemo"
+        :param options:
+        Keyword Args:
+            keepData (bool): 卸载后是否保留应用程序数据和缓存。默认是False
+            timeout (int): 等待卸载完成时间。默认是20000ms
+        :return:
+        """
+        self.driver.remove_app(app_info, **options)
 
     def launch_app(self):
-        self.driver.activate_app("com.shinemo.baas.shinemo")
+        """
+        启动app
+        :return:
+        """
+        self.driver.launch_app()
 
     def close_app(self):
-        pass
+        """
+        关闭当前app
+        :return:
+        """
+        self.driver.close_app()
 
     def shake(self):
-        pass
+        """
+        摇动设备
+        :return:
+        """
+        self.driver.shake()
 
-    def maximize_window(self):
-        pass
-
-    def refresh(self):
-        pass
