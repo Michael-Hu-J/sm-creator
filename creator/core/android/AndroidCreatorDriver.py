@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from creator.core.CreatorDriver import MobileCreatorDriver
 from creator.core.android.GetDriver import android_dir
+from creator.core.android.Log import MyLog
 
 
 class AndroidCreatorDriver(MobileCreatorDriver):

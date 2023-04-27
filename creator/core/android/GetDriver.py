@@ -5,6 +5,10 @@ import os.path
 from appium import webdriver
 import time
 
+"""
+读取android配置文件，封装driver
+"""
+
 
 android_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,7 +26,6 @@ def baas_driver():
     desired_caps = baas_desired_caps()
     # print(desired_caps)
     driver = webdriver.Remote("http://127.0.0.1:4723/wd/hub", desired_capabilities=desired_caps)
-    driver.scroll()
     return driver
 
 # baas_driver()
