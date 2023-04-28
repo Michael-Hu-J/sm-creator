@@ -207,11 +207,15 @@ class AndroidCreatorDriver(MobileCreatorDriver):
 
     def is_app_installed(self, app_info):
         """
-        判断该包是否已安装
+        检查设备是否安装该包
         :param app_info: android包名，如："com.shinemo.baas.shinemo"
         :return: 返回 True 代表改包已安装，False 则反之
         """
-        return self.driver.is_app_installed(app_info)
+        try:
+            return self.driver.is_app_installed(app_info)
+        except Exception as err:
+            MyLog.exception('检查"{}"是否安装失败：{}'.format(app_info, err))
+            raise
 
     def install_app(self, app_info, **options):
         """
@@ -226,8 +230,14 @@ class AndroidCreatorDriver(MobileCreatorDriver):
             grantPermissions (bool): 在android 6+安装完成后，是否自动授权应用程序权限。默认是False
         :return:
         """
-        package_path = os.path.join(android_dir, "android_package/app_info")
-        self.driver.install_app(package_path, **options)
+        MyLog.info('开始安装"{}"包'.format(app_info))
+        try:
+            package_path = os.path.join(android_dir, "android_package/app_info")
+            self.driver.install_app(package_path, **options)
+            MyLog.info('安装"{}"包成功！'.format(app_info))
+        except Exception as err:
+            MyLog.exception('安装"{}"包失败：{}！'.format(app_info, err))
+            raise
 
     def remove_app(self, app_info, **options):
         """
@@ -239,7 +249,13 @@ class AndroidCreatorDriver(MobileCreatorDriver):
             timeout (int): 等待卸载完成时间。默认是20000ms
         :return:
         """
-        self.driver.remove_app(app_info, **options)
+        MyLog.info('开始卸载"{}"包'.format(app_info))
+        try:
+            self.driver.remove_app(app_info, **options)
+            MyLog.info('卸载"{}"包成功！'.format(app_info))
+        except Exception as err:
+            MyLog.exception('卸载"{}"包失败：{}'.format(app_info, err))
+            raise
 
     def launch_app(self):
         """
