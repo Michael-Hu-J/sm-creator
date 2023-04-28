@@ -13,6 +13,10 @@ from creator.core.CreatorDriver import MobileCreatorDriver
 from creator.core.android.GetDriver import android_dir
 from creator.core.android.Log import MyLog
 
+"""
+封装所有android基础操作方法
+"""
+
 
 class AndroidCreatorDriver(MobileCreatorDriver):
     def __init__(self, driver):

@@ -4,6 +4,10 @@ from appium.webdriver.common.appiumby import AppiumBy
 from creator.core.BaseElement import BaseElement
 from creator.core.android.AndroidCreatorDriver import AndroidCreatorDriver
 
+"""
+封装常用元素操作方法
+"""
+
 
 class AndroidELement(BaseElement, AndroidCreatorDriver):
     def click(self, by=AppiumBy.ID, value=None):
