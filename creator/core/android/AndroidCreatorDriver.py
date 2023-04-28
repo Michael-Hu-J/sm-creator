@@ -1,9 +1,11 @@
 # -*- coding:utf-8 -*-
 import os.path
 import time
+from datetime import datetime
 import base64
 
 from appium.webdriver.common.appiumby import AppiumBy
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -23,7 +25,12 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         :param keycode: 如：AndroidKey.HOME
         :return: 无
         """
-        self.driver.press_keycode(keycode)
+        MyLog.info('模拟"{}"按键'.format(keycode))
+        try:
+            self.driver.press_keycode(keycode)
+        except Exception as err:
+            MyLog.exception('模拟"{}"按键失败：{}'.format(keycode, err))
+            raise
 
     def save_screenshot(self, description=None):
         """
@@ -31,17 +38,26 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         :param description: 截图描述
         :return:
         """
-        screenshot_path = os.path.join(android_dir, "screenshots/{}_{}.png".format(description,
-                                                                                   time.strftime("%Y-%m-%d",
-                                                                                                 time.localtime())))
-        self.driver.get_screenshot_as_file(screenshot_path)
+        try:
+            screenshot_path = os.path.join(android_dir, "screenshots/{}_{}.png".format(description,
+                                                                                       time.strftime("%Y-%m-%d",
+                                                                                                     time.localtime())))
+            self.driver.get_screenshot_as_file(screenshot_path)
+        except Exception as err:
+            MyLog.exception('截图失败：{}'.format(err))
+            raise
 
     def start_screenrecord(self):
         """
         开始屏幕录制
         :return: 如果在之前的“start_recording_screen”之后没有调用“stop_recording_screen”，返回为空字符串
         """
-        self.driver.start_recording_screen()
+        MyLog.info('开始屏幕录制')
+        try:
+            self.driver.start_recording_screen()
+        except Exception as err:
+            MyLog.exception('屏幕录制失败：{}'.format(err))
+            raise
 
     def stop_screenrecord(self, description=None):
         """
@@ -49,64 +65,109 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         :param description: 录制文件描述
         :return: bytes: 录制媒体的Base-64 编码内容
         """
-        record = self.driver.stop_recording_screen()
-        record_path = os.path.join(android_dir, "record/{}_{}.mp4".format(description,
-                                                                          time.strftime("%Y-%m-%d",
-                                                                                        time.localtime())))
-        with open(record_path, mode="wb+") as r:
-            r.write(base64.b64decode(record))
+        MyLog.info('停止屏幕录制')
+        try:
+            record = self.driver.stop_recording_screen()
+            record_path = os.path.join(android_dir, "record/{}_{}.mp4".format(description,
+                                                                              time.strftime("%Y-%m-%d",
+                                                                                            time.localtime())))
+            with open(record_path, mode="wb+") as r:
+                r.write(base64.b64decode(record))
+        except Exception as err:
+            MyLog.exception('屏幕录制失败'.format(err))
+            raise
 
-    def findElement(self, by=AppiumBy.ID, value=None):
+    def findElement(self, by=AppiumBy.ID, value=None, description=None):
         """
         导入from appium.webdriver.common.appiumby import AppiumBy
         :param by: AppiumBy.ID, AppiumBy.ACCESSIBILITY_ID, AppiumBy.CLASS_NAME, AppiumBy.NAME, AppiumBy.XPATH, AppiumBy.IMAGE, AppiumBy.ANDROID_UIAUTOMATOR
         :param value: 属性值
+        :param description: 定位描述
         :return:
         """
-        return self.driver.find_element(by, value)
+        MyLog.info('【{}】查找"{}"元素，元素定位："{}"'.format(by, description, value))
+        try:
+            return self.driver.find_element(by, value)
+        except NoSuchElementException:
+            MyLog.exception('【{}】查找"{}"元素失败，元素定位："{}"'.format(by, description, value))
+            self.save_screenshot(description=description)
+            raise
 
-    def findElements(self, by=AppiumBy.ID, value=None):
+    def findElements(self, by=AppiumBy.ID, value=None, description=None):
         """
         导入from appium.webdriver.common.appiumby import AppiumBy
         :param by: AppiumBy.ID, AppiumBy.ACCESSIBILITY_ID, AppiumBy.CLASS_NAME, AppiumBy.NAME, AppiumBy.XPATH, AppiumBy.IMAGE, AppiumBy.ANDROID_UIAUTOMATOR
         :param value: 属性值
+        :param description: 定位描述
         :return: 返回一个list
         """
-        return self.driver.find_elements(by, value)
+        MyLog.info('【{}】查找"{}"元素，元素定位："{}"'.format(by, description, value))
+        try:
+            return self.driver.find_elements(by, value)
+        except NoSuchElementException:
+            MyLog.exception('【{}】查找"{}"元素失败，元素定位："{}"'.format(by, description, value))
+            self.save_screenshot(description=description)
+            raise
 
-    def wait_element_explicit(self, by=AppiumBy.ID, value=None, wait_time=5):
+    def wait_element_explicit(self, by=AppiumBy.ID, value=None, wait_time=5, description=None):
         """
         导入from appium.webdriver.common.appiumby import AppiumBy
         :param by: AppiumBy.ID, AppiumBy.ACCESSIBILITY_ID, AppiumBy.CLASS_NAME, AppiumBy.NAME, AppiumBy.XPATH, AppiumBy.IMAGE, AppiumBy.ANDROID_UIAUTOMATOR
         :param value: 属性值
         :param wait_time: 最长等待事件，默认5秒
+        :param description: 定位描述
         :return:
         """
-        return WebDriverWait(self.driver, wait_time).until(EC.visibility_of_element_located((by, value)))
+        MyLog.info('【{}】等待"{}"元素，元素定位："{}"'.format(by, description, value))
+        try:
+            start = datetime.now()
+            wait_element = WebDriverWait(self.driver, wait_time).until(EC.visibility_of_element_located((by, value)))
+            end = datetime.now()
+            MyLog.info('【{}】等待"{}"元素时长，{}'.format(by, description, end - start))
+            return wait_element
+        except TimeoutException:
+            MyLog.exception('【{}】等待"{}"元素超时，元素定位："{}"'.format(by, description, value))
+            self.save_screenshot(description=description)
+            raise
 
-    def wait_elements_explicit(self, by=AppiumBy.ID, value=None, wait_time=5):
+    def wait_elements_explicit(self, by=AppiumBy.ID, value=None, wait_time=5, description=None):
         """
         导入from appium.webdriver.common.appiumby import AppiumBy
         :param by: AppiumBy.ID, AppiumBy.ACCESSIBILITY_ID, AppiumBy.CLASS_NAME, AppiumBy.NAME, AppiumBy.XPATH, AppiumBy.IMAGE, AppiumBy.ANDROID_UIAUTOMATOR
         :param value: 属性值
         :param wait_time: 最长等待事件，默认5秒
+        :param description: 定位描述
         :return: 返回一个list
         """
-        return WebDriverWait(self.driver, wait_time).until(EC.visibility_of_all_elements_located((by, value)))
+        # return WebDriverWait(self.driver, wait_time).until(EC.visibility_of_all_elements_located((by, value)))
+        MyLog.info('【{}】等待"{}"元素，元素定位："{}"'.format(by, description, value))
+        try:
+            start = datetime.now()
+            wait_elements = WebDriverWait(self.driver, wait_time).until(
+                EC.visibility_of_all_elements_located((by, value)))
+            end = datetime.now()
+            MyLog.info('【{}】等待"{}"元素时长，{}'.format(by, description, end - start))
+            return wait_elements
+        except TimeoutException:
+            MyLog.exception('【{}】等待"{}"元素超时，元素定位："{}"'.format(by, description, value))
+            self.save_screenshot(description=description)
+            raise
 
     def quit(self):
         """
         关闭驱动连接
         :return:
         """
+        MyLog.info('关闭驱动连接')
         self.driver.quit()
 
     @property
     def contexts(self):
         """
-        获取当前contexts
+        获取所有contexts
         :return: 返回list
         """
+        MyLog.info('获取所有contexts')
         return self.driver.contexts
 
     @property
@@ -115,6 +176,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         获取当前context
         :return: str，返回当前的context session
         """
+        MyLog.info('获取当前context')
         return self.driver.current_context
 
     def tap(self, positions, duration=None):
@@ -124,6 +186,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         :param duration: 持续事件，单位毫秒
         :return:
         """
+        MyLog.info('点击坐标值"{}"'.format(positions))
         self.driver.tap(positions=positions, duration=duration)
 
     def scroll(self, origin_el, destination_el, duration=None):
@@ -134,10 +197,13 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         :param duration: 持续时间，从原始元素到目标元素的滚动操作速度，单位毫秒，duration=None时，默认时600ms
         :return:
         """
+        MyLog.info('开始滚动元素')
         self.driver.scroll(origin_el=origin_el, destination_el=destination_el, duration=duration)
+        MyLog.info('已滚动到目标元素')
 
     def is_app_installed(self, app_info):
         """
+        判断该包是否已安装
         :param app_info: android包名，如："com.shinemo.baas.shinemo"
         :return: 返回 True 代表改包已安装，False 则反之
         """
@@ -145,6 +211,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
 
     def install_app(self, app_info, **options):
         """
+        安装app
         :param app_info: android安装包的名字，如："app.apk"
         :param options:
         Keyword Args:
@@ -160,6 +227,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
 
     def remove_app(self, app_info, **options):
         """
+        卸载app
         :param app_info: android包名，如："com.shinemo.baas.shinemo"
         :param options:
         Keyword Args:
@@ -174,13 +242,16 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         启动app
         :return:
         """
+        MyLog.info('开始启动app')
         self.driver.launch_app()
+        MyLog.info('启动完成')
 
     def close_app(self):
         """
         关闭当前app
         :return:
         """
+        MyLog.info('关闭app')
         self.driver.close_app()
 
     def shake(self):
@@ -188,5 +259,5 @@ class AndroidCreatorDriver(MobileCreatorDriver):
         摇动设备
         :return:
         """
+        MyLog.info('开始摇动设备')
         self.driver.shake()
-
