@@ -19,6 +19,4 @@ class TestActivateApp:
         AndroidCreatorDriver(driver).launch_app()
         time.sleep(3)
         # AndroidCreatorDriver(driver).press(AndroidKey.HOME)
-        AndroidCreatorDriver(driver).start_screenrecord()
-        time.sleep(3)
-        AndroidCreatorDriver(driver).stop_screenrecord()
+        AndroidCreatorDriver(driver).save_screenshot(description="登录")

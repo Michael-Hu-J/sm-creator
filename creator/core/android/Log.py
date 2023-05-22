@@ -11,7 +11,7 @@ import time
 import os.path
 from creator.core.android.GetDriver import android_dir
 
-log_path = os.path.join(android_dir, "log/{}.png".format(time.strftime("%Y-%m-%d", time.localtime())))
+log_path = os.path.join(android_dir, "log/{}.log".format(time.strftime("%Y-%m-%d", time.localtime())))
 
 
 class MyLog:
