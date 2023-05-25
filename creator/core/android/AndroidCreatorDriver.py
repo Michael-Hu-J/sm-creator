@@ -75,6 +75,7 @@ class AndroidCreatorDriver(MobileCreatorDriver):
             record_path = os.path.join(android_dir, "record/{}_{}.mp4".format(description,
                                                                               time.strftime("%Y-%m-%d",
                                                                                             time.localtime())))
+            # 将生成的Base-64文件转换成mp4
             with open(record_path, mode="wb+") as r:
                 r.write(base64.b64decode(record))
         except Exception as err:
